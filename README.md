@@ -15,3 +15,4 @@
     Jaden's nether expansion
     supplementaries
     tetra
+    colorful hearts
