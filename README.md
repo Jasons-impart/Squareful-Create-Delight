@@ -1,6 +1,9 @@
 ## A Squarful resourcepack addition for Create Delight Remake
 
 ---
+##  在完全适配CDR后会发行无create delight core的版本
+
+---
 ####    [Squarful](https://modrinth.com/resourcepack/xekrsquarepattern)
 
 ---
