@@ -12,11 +12,14 @@
 
 ---
 ### 包含的模组   mods included
+    Ad Astra
     Alex's caves
-    bakeries
-    create metallurgy
-    create new age
-    colorful hearts
+    Bakeries
+    Create metallurgy
+    Create new age
+    Colorful hearts
+    The Endergetic Expansion
+    Ice and fire
     Jaden's nether expansion
-    supplementaries
-    tetra
+    Supplementaries
+    Tetra
