@@ -1,0 +1,8 @@
+{
+    "textures":  {
+                     "top":  "quark:block/spruce_bookshelf3d_top",
+                     "side":  "quark:block/spruce_bookshelf3d_side",
+                     "particle":  "quark:block/spruce_bookshelf3d_side"
+                 },
+    "parent":  "minecraft:block/bookshelf_3d2_rr"
+}

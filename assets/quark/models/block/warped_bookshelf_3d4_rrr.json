@@ -1,0 +1,8 @@
+{
+    "textures":  {
+                     "top":  "quark:block/warped_bookshelf3d_top",
+                     "side":  "quark:block/warped_bookshelf3d_side",
+                     "particle":  "quark:block/warped_bookshelf3d_side"
+                 },
+    "parent":  "minecraft:block/bookshelf_3d4_rrr"
+}
