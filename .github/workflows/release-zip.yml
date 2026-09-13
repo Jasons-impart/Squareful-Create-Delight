@@ -16,6 +16,8 @@ permissions:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
+    env:
+      LANG: C.UTF-8
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -40,16 +42,59 @@ jobs:
         env:
           TAG: ${{ steps.set-tag.outputs.TAG }}
         run: |
-          zipname="repo-${TAG}.zip"
+          zipname="Squareful_CDR-齿轮盛宴方纹兼容-${TAG}.zip"
           rm -f "$zipname"
           zip -r "$zipname" . -x ".git/*" ".github/*" "node_modules/*" "venv/*" "__pycache__/*"
           ls -lh "$zipname"
+
+      - name: Generate raw changelog
+        run: |
+          prev=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || true)
+          if [ -n "$prev" ]; then range="${prev}..HEAD"; else range="HEAD"; fi
+          git log --pretty=format:'- %s (%h)' "$range" > RAW_CHANGELOG.md
+          echo "" >> RAW_CHANGELOG.md
+
+      - name: Summarize changelog with AI
+        id: ai
+        env:
+          API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          TAG: ${{ steps.set-tag.outputs.TAG }}
+        run: |
+          if [ -z "$API_KEY" ]; then
+            echo "未配置 API_KEY，交由 GitHub 自动生成日志"
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          payload=$(jq -n --arg tag "$TAG" --rawfile log RAW_CHANGELOG.md '{
+            model: "deepseek-chat",
+            temperature: 0.3,
+            messages: [
+              {role:"system", content:"你是 Minecraft 资源包发布助手。将提交记录整理为简洁中文更新日志，按 新增/修复/调整 分类，用 Markdown 列表，不要编造未提及的内容。"},
+              {role:"user", content:("版本: " + $tag + "\n提交记录:\n" + $log)}
+            ]
+          }')
+          ok=false
+          for i in 1 2 3; do
+            resp=$(curl -sS --max-time 60 https://api.deepseek.com/chat/completions \
+              -H "Authorization: Bearer $API_KEY" \
+              -H "Content-Type: application/json" -d "$payload" || true)
+            summary=$(echo "$resp" | jq -r '.choices[0].message.content // empty' 2>/dev/null || true)
+            if [ -n "$summary" ]; then
+              printf '%s\n' "$summary" > CHANGELOG_BODY.md
+              ok=true
+              break
+            fi
+            echo "第 $i 次 AI 调用失败"
+            sleep 5
+          done
+          echo "ok=$ok" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.set-tag.outputs.TAG }}
           name: Release ${{ steps.set-tag.outputs.TAG }}
-          body: Automated release with zip
-          files: repo-${{ steps.set-tag.outputs.TAG }}.zip
+          body_path: ${{ steps.ai.outputs.ok == 'true' && 'CHANGELOG_BODY.md' || '' }}
+          generate_release_notes: ${{ steps.ai.outputs.ok != 'true' }}
+          files: Squareful_CDR-齿轮盛宴方纹兼容-${{ steps.set-tag.outputs.TAG }}.zip
           fail_on_unmatched_files: true
