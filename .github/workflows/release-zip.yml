@@ -10,47 +10,46 @@ on:
         description: 'Tag for release (e.g. v1.0.0). If empty, a short SHA will be used.'
         required: false
 
+permissions:
+  contents: write
+
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.set-tag.outputs.TAG }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Determine tag
         id: set-tag
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag }}
         run: |
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          elif [ -n "${{ github.event.inputs.tag }}" ]; then
-            echo "TAG=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+            tag="${GITHUB_REF#refs/tags/}"
+          elif [ -n "${INPUT_TAG}" ]; then
+            tag="${INPUT_TAG}"
           else
-            echo "TAG=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+            tag="${GITHUB_SHA::7}"
           fi
+          echo "TAG=${tag}" >> "$GITHUB_OUTPUT"
 
       - name: Create zip (exclude common large dirs)
+        env:
+          TAG: ${{ steps.set-tag.outputs.TAG }}
         run: |
-          zipname=repo-${{ steps.set-tag.outputs.TAG }}.zip
+          zipname="repo-${TAG}.zip"
           rm -f "$zipname"
           zip -r "$zipname" . -x ".git/*" ".github/*" "node_modules/*" "venv/*" "__pycache__/*"
           ls -lh "$zipname"
 
       - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.set-tag.outputs.TAG }}
-          release_name: Release ${{ steps.set-tag.outputs.TAG }}
+          name: Release ${{ steps.set-tag.outputs.TAG }}
           body: Automated release with zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload release asset (zip)
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./repo-${{ steps.set-tag.outputs.TAG }}.zip
-          asset_name: repo-${{ steps.set-tag.outputs.TAG }}.zip
-          asset_content_type: application/zip
+          files: repo-${{ steps.set-tag.outputs.TAG }}.zip
+          fail_on_unmatched_files: true
