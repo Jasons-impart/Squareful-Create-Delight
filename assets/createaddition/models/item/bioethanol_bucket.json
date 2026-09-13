@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "minecraft:item/bucket",
+    "layer1": "createaddition:item/bucket_content/bioethanol_bucket"
+  }
+}

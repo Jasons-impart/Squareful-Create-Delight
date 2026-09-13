@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "minecraft:item/bucket",
+    "layer1": "bakeries:item/bucket_content/salt_water_bucket"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "minecraft:item/bucket",
+    "layer1": "frycooks_delight:item/bucket_content/hot_grease_bucket"
+  }
+}

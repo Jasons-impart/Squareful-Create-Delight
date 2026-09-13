@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "minecraft:item/bucket",
+    "layer1": "butchercraft:item/bucket_content/blood_fluid_bucket"
+  }
+}

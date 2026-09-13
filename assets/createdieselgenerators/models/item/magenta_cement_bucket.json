@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "minecraft:item/bucket",
+    "layer1": "createdieselgenerators:item/bucket_content/magenta_cement_bucket"
+  }
+}

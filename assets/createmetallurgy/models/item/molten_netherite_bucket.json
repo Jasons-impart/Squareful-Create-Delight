@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "minecraft:item/bucket",
+    "layer1": "createmetallurgy:item/bucket_content/molten_netherite_bucket"
+  }
+}
